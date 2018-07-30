@@ -2,6 +2,7 @@
 
     include "Migrator.php";
     include "Validator.php";
+    include "MigrationCreator.php";
 
 
     class MigrationManager{
@@ -30,8 +31,9 @@
                     $success = (new Migrator())->migrate('00');
                     break;
                 case 'create':
-                        $success = $this->migrate();
-                        break;
+                    $newMigration = new MigrationCreator($this->args[1]);
+                    $success = $newMigration->create();
+                    break;
                 case 'migrate':
                     $success = (new Migrator())->migrate($this->args[1]);
                     break;
@@ -40,7 +42,7 @@
             }
 
             if ($success){
-                echo "Processo realizado com sucesso!\n";
+                echo "Success!\n";
             }
         }
 

@@ -57,6 +57,17 @@
 
         }
 
+        public function insert($query, $arrArgs): bool{
+            try {
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute($arrArgs);
+            } catch(PDOException $e) {
+                echo "ERRO: ". $e->getMessage();
+                return FALSE;
+            }
+            return TRUE;
+        }
+
         public function close(){
             $this->pdo = NULL;
         }

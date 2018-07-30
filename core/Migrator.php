@@ -11,11 +11,11 @@
             $this->mysql = new Mysql();
         }
 
-        public function migrate($token): bool{
-            $starttime = microtime();
-            $file = glob('migrations/'. $token .'*.php')[0];
+        public function migrate($token, $params): bool{
+            $file = glob('../migrations/'. $token .'*.php')[0];
             
             if ($file){
+                $starttime = microtime();
                 include $file;
 
                 $curr = $this->getCurrentToken();
@@ -24,28 +24,39 @@
                 //Foward
                 if ($curr > $to){
                     $this->runFoward($curr, $to);
-
+                //Backwards
                 }else{
-                    while($curr<=$to){
-                        if (!$this->mysql->execute(eval('$backward')))
-                            return FALSE;
-
-                    }
+                    $this->runBackwards($curr, $to);
                 }
+
+                $endtime = microtime(true);
+                $timediff = $endtime - $starttime;
+    
+                return $this->setNewToken($token, $curr, $endtime);
+                
             }
 
-            $endtime = microtime(true);
-            $timediff = $endtime - $starttime;
-
-            echo $timediff;
-            return TRUE;
+            return FALSE;
         }
 
         private function runFoward($from, $to){
             if($from == $to){
                 return TRUE;
             }
-            $this->mysql->execute(eval('$foward'));
+            if ($this->mysql->execute(eval('$foward'))){
+                return $this->runFoward(++$from, $to);
+            }
+            return FALSE;
+            
+        }
+        private function runBackwards($from, $to){
+            if($from == $to){
+                return TRUE;
+            }
+            if ($this->mysql->execute(eval('$backwards'))){
+                return $this->runFoward(--$from, $to);
+            }
+            return FALSE;
             
         }
 
@@ -55,7 +66,16 @@
             if (empty($curr)){
                 return NULL;
             }
+        }
 
+        private function setNewToken($token, $prev_token, $elapsed_time): bool{
+            $query = Queries::$INSERT_CONTROL;
+            $params = array(
+                ':token'          => $token,
+                ':prev_token'     => $prev_token,
+                ':elapsed_time'   => $elapsed_time
+            );
+            return $this->mysql->insert($query);
         }
 
     }

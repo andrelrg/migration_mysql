@@ -8,4 +8,11 @@
             ORDER BY 
                 id DESC 
             LIMIT 1";
+        
+        public static $INSERT_CONTROL = "INSERT 
+            INTO 
+                migration_control
+                (token, prev_token, elapsed_time)
+            VALUES
+                (:token, :prev_token, :elapsed_time)";
     }
