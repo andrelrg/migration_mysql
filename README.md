@@ -1,19 +1,24 @@
 # migration_mysql
 
-    ##Migration Project
-        This project was made to facilitate migrations in mysql databases, helping with the agility of the process and having greater control over bank versioning.
+# Migration Project
 
-    ##Avaliable commands:
-        ###begin: 
-            Create the migration control table.
+    This project was made to facilitate migrations in mysql databases, helping with the agility of the process and having greater control over bank versioning.
 
-        ###create <migration_name>: 
-            Create a php file to be filled with your DB alterations.
-        
-        ###migrate <migration_token>: 
-            Execute the migrations fowards or backwards, depending on the given token.
-            
-            Optional: fake: Fakes the execution for this token and save the pointer to him.
-            Usage example: `php migration.php migrate 02 fake`
+# Avaliable commands:
 
-    % author André Gaspar
+## begin: 
+Create the migration control table.
+
+
+## create <migration_name>: 
+Create a php file to be filled with your DB alterations.
+
+
+## migrate <migration_token>: 
+Execute the migrations fowards or backwards, depending on the given token.
+
+Optional: fake: Fakes the execution for this token and save the pointer to him.
+Usage example: `php migration.php migrate 02 fake`
+
+
+#### author: André Gaspar
