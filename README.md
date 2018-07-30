@@ -18,5 +18,8 @@ Execute the migrations fowards or backwards, depending on the given token.
 Optional: fake: Fakes the execution for this token and save the pointer to him.
 Usage example: `php migration.php migrate 02 fake`
 
+# Before start:
+You need to create a file named: `db_config.json`.
+This file should follow the example of `db_config_example.json`.
 
 #### author: André Gaspar
