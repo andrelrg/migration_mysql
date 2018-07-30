@@ -40,7 +40,7 @@ EOF;
 
         private function getNextFileToken(){
             $file = end(glob('migrations/*.php'));
-            preg_match('/\d{2,4}/', $file, $matches);
+            preg_match('/\d{1,4}/', $file, $matches);
 
             $newToken = intval($matches[0]);
             return ++$newToken;
