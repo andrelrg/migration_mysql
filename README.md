@@ -1,5 +1,3 @@
-# migration_mysql
-
 # Migration Project
 
     This project was made to facilitate migrations in mysql databases, helping with the agility of the process and having greater control over bank versioning.
