@@ -5,46 +5,74 @@
     
     class Migrator{
 
+        private $fake;
         private $mysql;
+        private $begin;
+        private $name_files;
 
-        function __construct(){
+        function __construct($begin, $fake=FALSE){
+            $this->begin = $begin;
+            $this->fake = $fake;
             $this->mysql = new Mysql();
         }
 
-        public function migrate($token, $params): bool{
-            $file = glob('../migrations/'. $token .'*.php')[0];
+        public function migrate($token): bool{
             
-            if ($file){
-                $starttime = microtime();
-                include $file;
 
+            $starttime = microtime();
+
+            if ($this->begin){
+                $curr = -1;
+            }else{
                 $curr = $this->getCurrentToken();
-                $to = intval($token);
-
-                //Foward
-                if ($curr > $to){
-                    $this->runFoward($curr, $to);
-                //Backwards
-                }else{
-                    $this->runBackwards($curr, $to);
-                }
-
-                $endtime = microtime(true);
-                $timediff = $endtime - $starttime;
-    
-                return $this->setNewToken($token, $curr, $endtime);
-                
             }
 
-            return FALSE;
+            $to = intval($token);
+            $success = FALSE;
+
+            if($from === $to){
+                echo "Your migration is already at this pointer";
+                return TRUE;
+            }
+
+            //Foward
+            if ($curr < $to){
+                $success = $this->runFowards($curr, $to);
+            //Backwards
+            }else{
+                $success = $this->runBackwards($curr, $to);
+            }
+
+            if (!$success){
+                return FALSE;
+            }
+            $endtime = microtime(true);
+            $timediff = round($this->microtime_diff($starttime, $endtime),5);
+
+            echo "Elapsed Time: " . $timediff . "\n";
+
+            return $this->setNewToken($token, $curr, $this->name_files, $this->fake, $timediff);
+
         }
 
-        private function runFoward($from, $to){
+        private function runFowards($from, $to){
             if($from == $to){
                 return TRUE;
             }
-            if ($this->mysql->execute(eval('$foward'))){
-                return $this->runFoward(++$from, $to);
+            $from++;
+            echo "Executing migration Token: $from\n";
+            $file = glob('migrations/'. $from .'*.php')[0];
+            if($file){
+                $this->name_files .= $file . ",";
+                include $file;
+
+                $success = $this->fake;
+                if (!$this->fake){
+                    $success = $this->mysql->execute($fowards);
+                }
+                if ($success){
+                    return $this->runFowards($from, $to);
+                }
             }
             return FALSE;
             
@@ -53,29 +81,50 @@
             if($from == $to){
                 return TRUE;
             }
-            if ($this->mysql->execute(eval('$backwards'))){
-                return $this->runFoward(--$from, $to);
+            echo "Executing migration Token: $from\n";
+            $file = glob('migrations/'. $from .'*.php')[0];
+            if($file){
+                $this->name_files .= $file . ",";
+                include $file;
+
+                $success = $this->fake;
+                if (!$this->fake){
+                    $success = $this->mysql->execute($backwards);
+                }
+                if ($success){
+                    return $this->runBackwards(--$from, $to);
+                }
             }
             return FALSE;
-            
         }
 
         private function getCurrentToken(): int{
             $query = Queries::$SELECT_CURRENT_TOKEN;
             $curr = $this->mysql->select($query)->getFetchAll();
             if (empty($curr)){
-                return NULL;
+                die("You should run the begin command before use migrations, see help\n");
             }
+            return $curr[0]["token"];
         }
 
-        private function setNewToken($token, $prev_token, $elapsed_time): bool{
+        private function setNewToken($token, $prev_token, $name_files, $faked, $elapsed_time): bool{
             $query = Queries::$INSERT_CONTROL;
             $params = array(
                 ':token'          => $token,
                 ':prev_token'     => $prev_token,
+                ':name_files'     => $name_files,
+                ':faked'          => $faked,
                 ':elapsed_time'   => $elapsed_time
             );
-            return $this->mysql->insert($query);
+            return $this->mysql->insert($query, $params);
+        }
+
+        private function microtime_diff($start, $end){
+            list($start_usec, $start_sec) = explode(" ", $start);
+            list($end_usec, $end_sec) = explode(" ", $end);
+            $diff_sec = intval($end_sec) - intval($start_sec);
+            $diff_usec = floatval($end_usec) - floatval($start_usec);
+            return floatval($diff_sec) + $diff_usec;
         }
 
     }

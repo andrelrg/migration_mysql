@@ -9,6 +9,9 @@
                 },
                 function ($arg){
                     return true;
+                },
+                function ($arg){
+                    return true;
                 }
             );
 

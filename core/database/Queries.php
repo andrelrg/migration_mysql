@@ -12,7 +12,7 @@
         public static $INSERT_CONTROL = "INSERT 
             INTO 
                 migration_control
-                (token, prev_token, elapsed_time)
+                (token, prev_token, name_files, faked, elapsed_time)
             VALUES
-                (:token, :prev_token, :elapsed_time)";
+                (:token, :prev_token, :name_files, :faked, :elapsed_time)";
     }

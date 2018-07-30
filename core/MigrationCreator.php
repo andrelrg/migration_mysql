@@ -25,7 +25,7 @@ EOF;
             $token = $this->getNextFileToken();
             $date = new DateTime();
 
-            $newMigration = 'migrations/0' . $token . '-' . $this->name . '.php';
+            $newMigration = 'migrations/' . $token . '-' . $this->name . '.php';
 
             try{
                 $handle = fopen($newMigration, 'w') or die('Cannot create File:  '.$newMigration);

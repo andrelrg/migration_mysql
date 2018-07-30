@@ -26,6 +26,7 @@
                 $this->connectionInfo['password']
             );
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
         }
 
         public function select($query, ...$args): Mysql{
@@ -49,7 +50,7 @@
             try{
                 $this->pdo->exec($query);
             }catch(PDOException $e){
-                echo "ERRO: ". $e->getMessage();
+                echo "ERRO: ". $e->getMessage() . "\n";
                 return FALSE;
             }
 
@@ -62,7 +63,7 @@
                 $stmt = $this->pdo->prepare($query);
                 $stmt->execute($arrArgs);
             } catch(PDOException $e) {
-                echo "ERRO: ". $e->getMessage();
+                echo "ERRO: ". $e->getMessage() . "\n";
                 return FALSE;
             }
             return TRUE;
