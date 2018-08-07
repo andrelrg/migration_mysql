@@ -27,6 +27,7 @@
             );
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
+            $this->pdo->exec("set names utf8");
         }
 
         public function select($query, ...$args): Mysql{
